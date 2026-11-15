@@ -3,51 +3,6 @@
 All notable changes to Nitrous are documented here. The GitHub release for a version is
 published from the matching section of this file.
 
-## 0.14.0-test.7 - 2026-11-15
-
-### Lighting
-
-- **The beat effect steps half as often when the backlight is driven through ACPI.** The audio latency
-  survived the previous cut, and running the read-only EC probe produces the same crackle in music -
-  so on that platform the ACPI calls themselves starve the audio driver, not the value they carry.
-  Five-step keyboards now step every 500 ms; EC HID keyboards keep 150 ms, where a write is a feature
-  report rather than an ACPI method. The log records which floor was chosen.
-
-## 0.14.0-test.6 - 2026-11-15
-
-### Lighting
-
-- **Sound sync no longer floods the firmware with backlight writes.** On a five-step backlight the
-  beat effect runs a 50 Hz loop and set the level through `APGeAction`, and each write cost four ACPI
-  round-trips: read the OEM hotkey byte from the registry, read the timeout, write the level, read it
-  back. The hotkey and timeout are cached now, the write is verified every eighth step instead of
-  every step, and the step floor went from 70 ms to 150 ms - about 42 calls per second down to
-  roughly 7. Five firmware levels cannot show more than that anyway.
-- **A model that refuses the write stops being asked.** After three consecutive refusals the effect
-  turns itself off for the session and says so, instead of retrying at full rate forever.
-
-Reported as audio latency (LatencyMon) while Nitrous was running, on an ANV15-51.
-
-## 0.14.0-test.5 - 2026-11-14
-
-### Dashboard
-
-- The `GPU temp: the EC reports 0` line now only appears when the EC is demonstrably answering, with
-  a CPU temperature in the same read. An unelevated or failed read returns zero for every sensor, and
-  that is not the quirk the line is meant to report - it misled one diagnosis already.
-
-## 0.14.0-test.4 - 2026-11-14
-
-### Dashboard
-
-- **GPU temperature shows on the DASH again when the EC reports 0.** pr4u's ANV15-52 shows a live GPU
-  usage next to `-- C`: his EC answers 0 for the dGPU temperature, and the NVML fallback only ran when
-  NVML had *not* been polled that tick. With Deep GPU Telemetry on, the usage number itself is an NVML
-  reading, so the fallback was skipped and the zero stood. The dashboard now uses the driver's core
-  temperature whenever the EC has none, and only asks NVML for a second reading if it wasn't polled
-  at all. The history chart gains the same value.
-- The log records it once per session: `GPU temp: the EC reports 0; using the driver's 42 C.`
-
 ## 0.14.0-test.3 - 2026-11-14
 
 ### GPU

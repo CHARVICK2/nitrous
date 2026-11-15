@@ -41,3 +41,11 @@ reports, and nothing is installed or shipped.
 Acer, Nitro, NitroSense and Predator are trademarks of Acer Inc. Nitrous is an unofficial project,
 not affiliated with or endorsed by Acer. The marks are used only to describe what the software
 works with.
+
+## PawnIO modules
+
+CPU power-limit access uses the signed PawnIO driver (https://pawnio.eu) by namazso and two
+signed modules from PawnIO.Modules 0.2.11 (https://github.com/namazso/PawnIO.Modules):
+`IntelMSR.bin` and `IntelMCHBAR.bin`, LGPL-2.1 (see `assets/pawnio/COPYING`). The modules are
+shipped unmodified. Nitrous does not install the driver; if it is absent, the power-limit card
+reports that the registers are unavailable instead of guessing.
