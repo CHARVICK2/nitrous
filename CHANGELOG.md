@@ -3,6 +3,65 @@
 All notable changes to Nitrous are documented here. The GitHub release for a version is
 published from the matching section of this file.
 
+## 0.14.1 - 2026-11-16
+
+**pr4u_'s fork.** The build now names itself: `Nitrous 0.14.1` with `pr4u_'s fork` in the dashboard
+subtitle, the window title and the tray tooltip, so a fork build is never mistaken for upstream.
+
+### Dashboard
+
+- **Squared, lightly curved cards.** Every container sits at a 4 px radius - cards, tiles, buttons,
+  the power and fan switchers, dropdowns - instead of the old mix of pill and hard-corner shapes.
+- **The CPU and GPU tiles are slimmer.** Each carries a 2 px accent edge across its top and shows
+  just the label, load, fan RPM and a larger temperature; the shared two-minute temperature graph
+  sits underneath them and plots both series on its own baselines.
+- **The header rule is a scroll gauge.** It starts as a short accent line and runs out to the full
+  width as you reach the bottom of a page. Its height never changes, so nothing shifts while you
+  scroll.
+- **No grey scrollbars.** Every page still scrolls by wheel, trackpad and touch, but the rail is
+  hidden and the accent rule does the telling.
+- **The active tab is marked three ways** - accent icon and label, a wash behind the tab, and an
+  accent underline - while the inactive tabs stay legible against the dark rail.
+
+### OPTIMIZATIONS
+
+- **The card no longer asks you to guess.** It is titled `MEMORY & TEMP FILES` and splits into two
+  labelled actions: `Free the ticked memory lists` with a **FREE MEMORY** button, and
+  `Delete temporary files` with the measured size beside a **DELETE** button. The auto-run switch
+  reads `Free memory automatically`, and its tooltip says temporary files are never removed on its
+  own.
+- Status lines say which tool ran and what it left alone: freeing memory reports
+  "Freed 512 MB of memory. No files were deleted."
+
+### Fans
+
+- **CoolBoost for Auto mode.** A new switch under FANS asks the firmware for 15% more fan once the
+  CPU passes 52 °C while Auto is selected, and hands control straight back below 45 °C. It rides on
+  the existing two-second fan engine - one temperature read per tick, a write only when the target
+  really moves, nothing at all while the machine is cool - and it releases the fans on shutdown,
+  when the switch is turned off, or when you leave Auto. Unlike the firmware CoolBoost card, this
+  one works on models whose APGeAction function 7 is not CoolBoost, because it only asks Auto for
+  more air rather than changing a firmware feature.
+
+### Resource use
+
+- **Registry reads are cached for 400 ms.** The dashboard was opening HKCU\Software\Nitrous about
+  six times a second and the tray four times per tick; writes still invalidate the entry, so hotkeys
+  land as before.
+- **Profile sync runs at 1 Hz instead of 2 Hz**, halving the display and refresh-rate probes behind it.
+- **The memory line repaints only when the number changes**, instead of rebuilding a string and
+  re-laying-out text twice a second.
+- **Battery WMI reads every 5 s instead of 2 s** - charge and discharge rates do not move faster than
+  that, and each read constructed a ManagementObjectSearcher.
+- **Cold pages are handed back**: the tray trims its working set after two minutes and every 30, and
+  the dashboard trims whenever it is hidden. Measured here: tray 64 MB -> 30 MB after a trim,
+  dashboard CPU 6.9% -> 5.0% of one core while open.
+
+### Fixed
+
+- **A duplicated temperature graph.** The dashboard briefly carried sparklines inside both tiles and
+  the shared chart below. The tiles show numbers; the chart shows the history.
+
 ## 0.14.0-test.3 - 2026-11-14
 
 ### GPU

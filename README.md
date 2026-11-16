@@ -5,6 +5,10 @@
 ### Pure hardware control for Acer Nitro laptops.
 *No OEM service stack. No telemetry daemon. Just the firmware.*
 
+**This is `pr4u_'s fork` of Nitrous — version 0.14.1**, a personal build of
+[jeremyaliparo/nitrous](https://github.com/jeremyaliparo/nitrous). Interface and resource-use
+changes land here first; upstream remains the reference for the hardware layer.
+
 [![Latest Release](https://img.shields.io/github/v/release/jeremyaliparo/nitrous?style=for-the-badge&logo=github&label=Download%20Latest&color=e60012&include_prereleases)](https://github.com/jeremyaliparo/nitrous/releases/latest)
 [![GitHub Stars](https://img.shields.io/github/stars/jeremyaliparo/nitrous?style=for-the-badge&logo=github&label=Star%20Nitrous&color=ffb703)](https://github.com/jeremyaliparo/nitrous/stargazers)
 [![Discord](https://img.shields.io/badge/Discord-Join%20Chat-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/PGWzb3mHbG)
