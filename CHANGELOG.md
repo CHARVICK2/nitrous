@@ -33,15 +33,72 @@ subtitle, the window title and the tray tooltip, so a fork build is never mistak
 - Status lines say which tool ran and what it left alone: freeing memory reports
   "Freed 512 MB of memory. No files were deleted."
 
+### Performance check
+
+- **A bounded load that says what is limiting the machine.** `RUN CHECK` under POWER & PERFORMANCE
+  loads every CPU thread for 60 s and reports the effective clock it settles at, the peak it started
+  from, the drop between them, the package temperature and the fan speed - then names the limiter:
+  a clock that falls on a cool chip is a power limit, one that falls at 92 °C or more is heat, and
+  one that holds is neither. The dGPU is included when it is already awake and explicitly reported as
+  asleep when it is not, because a measurement is never a reason to wake it.
+- **It costs nothing until pressed.** No timer, no polling and no thread exists outside a run; the
+  load threads stop on the button, on window close, or at the end of the minute, whichever is first.
+- **`Nitrous.exe --perfcheck [seconds]`** runs the same check headless and writes the per-second
+  readings to the log, so a run can be reviewed later or compared against a change.
+
 ### Fans
 
-- **CoolBoost for Auto mode.** A new switch under FANS asks the firmware for 15% more fan once the
-  CPU passes 52 °C while Auto is selected, and hands control straight back below 45 °C. It rides on
-  the existing two-second fan engine - one temperature read per tick, a write only when the target
-  really moves, nothing at all while the machine is cool - and it releases the fans on shutdown,
-  when the switch is turned off, or when you leave Auto. Unlike the firmware CoolBoost card, this
-  one works on models whose APGeAction function 7 is not CoolBoost, because it only asks Auto for
-  more air rather than changing a firmware feature.
+- **CoolBoost for Auto mode.** A switch under FANS that asks the firmware for extra fan on top of
+  Auto: 6% once the CPU or GPU passes 52 °C, rising to 20% by 80 °C, tapered back when Auto is
+  already loud, and handed back to the firmware below 45 °C. The boost is measured from the higher
+  of the two curve targets, so a hot GPU under a cool CPU still gets air, and it ramps like the
+  custom curve so it does not step audibly. Turning it on moves the fans to Auto and holds them
+  there - Max and Custom are shut, and the fan hotkey says so - because CoolBoost has nothing to
+  add to either. The mode the fans were on is remembered and comes back when the switch is turned
+  off, so the Auto hold never quietly replaces a saved Max or Custom. It rides on the existing two-second fan engine: one temperature read per tick,
+  cached curves, a write only when the speed really moves, nothing at all while the machine is
+  cool, and a release on shutdown. Unlike the firmware CoolBoost card, this one works on models
+  whose APGeAction function 7 is not CoolBoost, because it only asks Auto for more air rather than
+  changing a firmware feature.
+- **Curve defaults sit where the sensors actually are.** The CPU curves now start at 40 °C and the
+  GPU curves at 45 °C instead of 30 °C, and the idle band asks for 10 to 20 points less at every
+  profile. This generation idles the GPU at 52-54 °C and the CPU in the fifties, so a curve anchored
+  at 30 °C was already asking for half its speed on a desktop. The top of each curve is unchanged,
+  so nothing is given up under real load; Turbo no longer starts at 50 % before the first degree of
+  heat.
+- **Rises arrive in steps, not lurches - while the chip is cool.** A rise is immediate in intent,
+  but below 55 °C it is handed over in at most 20 points per two-second tick, the allowance widens
+  with heat (32 points at 60 °C, 43 at 65 °C), and from 70 °C it is not capped at all, leaving
+  roughly 25 °C of headroom before throttle. A curve corner or a profile switch used to ask for
+  thirty or forty points in a single write - that write is the step people hear. The widening
+  matters more than the cap: a typical 20-40 point jump is one or two writes anywhere, and a
+  full-scale jump is a single write across the entire warm band.
+- **Small moves never reach the firmware.** A fan command is only written when a fan moves two
+  points or more, so a curve walking down a degree at a time no longer sends a WMI write per tick.
+- **Curves are parsed once, not every tick.** Both curves are cached per profile and rebuilt only
+  when the saved value changes, and the interpolation is a plain scan over the already-sorted list
+  instead of an `OrderBy().ToList()` per call. A curve tick is two cached registry reads plus two
+  scans; CoolBoost reuses the same cache instead of keeping its own.
+- **The curve editor costs less to drag.** The waypoint rings and dots are built once per point set
+  and moved afterwards, instead of being destroyed and rebuilt on every mouse move; a drag also
+  survives the pointer leaving the plot (the node at an edge used to be dropped), the value tooltip
+  stays inside the graph, and SAVE & APPLY now enables the curve override it applies rather than
+  leaving the manual sliders in charge.
+
+### Updates
+
+- **The fork no longer takes upstream's releases.** The updater was still pointed at
+  `jeremyaliparo/nitrous`, so "Check for updates" would have offered - and installed - a stock
+  Nitrous over this build, replacing the dashboard, CoolBoost, its Auto lock and the retuned fan
+  curves with no sign that it happened. Checks now use the fork's own repository
+  (`CHARVICK2/nitrous`), and when none is configured the check fetches nothing at all and says why
+  instead of falling back to upstream. `UpdateRepo` under `HKCU\Software\Nitrous` overrides the
+  slug without a rebuild; the resolved repository is listed in the diagnostics export.
+- **Release tags must be versions to be offered.** A tag such as `1.14.1_Fork` is not comparable -
+  read loosely it would look newer than the installed `0.14.1` and the updater would offer a
+  downgrade to a build the installation has already superseded. Such tags are ignored with a note
+  in the log rather than guessed at; releases tagged `X.Y.Z` (or `X.Y.Z-test.N`) are offered with
+  their published SHA-256 checked before anything is replaced.
 
 ### Resource use
 
