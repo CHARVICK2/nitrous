@@ -3,6 +3,24 @@
 All notable changes to Nitrous are documented here. The GitHub release for a version is
 published from the matching section of this file.
 
+## 1.14.2 - @pra4u's fork
+
+**@pra4u's fork.** Builds name themselves `Nitrous 1.14.2` above a `@pra4u's fork · Pure hardware control
+for Acer Nitro Laptops.` line on the dashboard header card, and carry the same name in the window title
+and the tray tooltip.
+
+### Fixes
+
+- **The CPU temperature is real now.** On this ANV15-52 the EC's CPU sensor (AcerGamingFunction
+  `0x0101`) answers a fixed 25 C whatever the load - the GPU sensor and both fan tachometers on the
+  same interface are correct. The CPU tile, the graph, CoolBoost and the fan curve now read
+  `IA32_PACKAGE_THERM_STATUS` (MSR 0x1B1) through the PawnIO IntelMSR module Nitrous already ships,
+  and keep the EC value on machines where that sensor is not available.
+- **Opening the dashboard no longer spins the fans up.** With CoolBoost Auto on, the window asked
+  for fan mode Auto as it was built - even though the tray already held it there - which put the
+  EC's own fan curve in charge for the couple of seconds before the tray wrote the boost speed
+  back. It now only changes the mode when the saved mode is something else.
+
 ## 0.14.1 - 2026-11-16
 
 **pr4u_'s fork.** The build now names itself: `Nitrous 0.14.1` with `pr4u_'s fork` in the dashboard
