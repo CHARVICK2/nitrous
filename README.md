@@ -5,7 +5,7 @@
 ### Pure hardware control for Acer Nitro laptops.
 *No OEM service stack. No telemetry daemon. Just the firmware.*
 
-**This is `@pra4u's fork` of Nitrous — version 1.14.2**, a personal build of
+**This is `@pra4u's fork` of Nitrous — version 1.14.3**, a personal build of
 [jeremyaliparo/nitrous](https://github.com/jeremyaliparo/nitrous). Interface and resource-use
 changes land here first; upstream remains the reference for the hardware layer.
 
@@ -19,10 +19,11 @@ changes land here first; upstream remains the reference for the hardware layer.
 <br>
 
 <p align="center">
-  <a href="assets/dashboard.png"><img src="assets/dashboard.png" alt="Dashboard" width="23%" /></a>&nbsp;
-  <a href="assets/gpu.png"><img src="assets/gpu.png" alt="GPU" width="23%" /></a>&nbsp;
-  <a href="assets/keyboard.png"><img src="assets/keyboard.png" alt="Lighting" width="23%" /></a>&nbsp;
-  <a href="assets/settings.png"><img src="assets/settings.png" alt="Setup" width="23%" /></a>
+  <a href="assets/showcase.png"><img src="assets/showcase.png" alt="Nitrous 1.14.3 on an Acer Nitro ANV15-52: the Dashboard, GPU, Lighting and Setup tabs side by side" width="100%" /></a>
+</p>
+
+<p align="center">
+  <sub><b>Dashboard</b> · <b>GPU</b> · <b>Lighting</b> · <b>Setup</b> — captured from this build (1.14.3) on a Nitro ANV15-52.</sub>
 </p>
 
 </div>
@@ -43,7 +44,7 @@ OEM control centers install heavy background service stacks, telemetry daemons, 
 
 | Subsystem | Capabilities |
 | :--- | :--- |
-| **Cooling** | • **Granular Fan Control:** Per-profile custom fan curves, manual control (**1% to 100%**), Auto, and Max.<br>• **Ramp Shaping:** Fans spin up instantly under load but step down gradually so short CPU bursts don't cause annoying revving.<br>• **CoolBoost:** one switch asks Auto for extra air - 6% once the CPU or GPU passes 52 °C, rising to 20% by 80 °C and handed back below 45 °C - so it works even where the firmware has no CoolBoost opcode; hidden in Max, which is already full speed. |
+| **Cooling** | • **Granular Fan Control:** Per-profile custom fan curves, manual control (**1% to 100%**), Auto, and Max.<br>• **Ramp Shaping:** Fans spin up instantly under load but step down gradually so short CPU bursts don't cause annoying revving.<br>• **CoolBoost:** one switch asks Auto for a little extra air - 2% on the fan whose sensor is hot once the CPU or GPU holds 62 °C, rising to 6% by 84 °C, faded in over a few seconds and handed back below 55 °C - so it works even where the firmware has no CoolBoost opcode; each fan follows its own curve, so a cool side is never made loud; hidden in Max, which is already full speed.<br>• **App Boost:** pick a game's .exe and Nitrous runs the hottest power mode while it is open, with the fans unlocked - each fan on its own curve plus 8%, no knee cap and no taper once the machine passes 62 °C, and left on the firmware's Auto curve while it stays cool - then puts the user's own modes back. Watched by the tray, so it works with the dashboard closed.<br>• **CoolBoost Calibration:** a two-minute sweep under load on half the cores (so the desktop stays usable) measures the temperature and RPM at four fan speeds and finds the one past which another step only buys RPM - noise. The boost then never pushes Auto past that speed. Runs itself the first time CoolBoost is switched on, becomes `RECALIBRATE` afterwards, and takes the fans from the tray for the length of the sweep. |
 | **Power & EC** | • **Firmware Profiles:** Quiet, Balanced, Performance, and Turbo applied directly through the EC so enforced GPU power limits follow.<br>• **CPU Tuning:** Per-profile CPU min/max limits and processor boost modes with automatic baseline backup and restore.<br>• **Battery Health:** Battery charge limiter and USB power delivery while the laptop is powered off.<br>• **AC/DC Memory:** Optional separate power and fan modes for AC and battery, applied when the charger changes. |
 | **GPU** | • **Clock Offsets:** Core and memory frequency offsets with live clocks, utilization, and thermal readouts.<br>• **Opt-In Ownership:** Clock writes are **off by default** so external tools (like MSI Afterburner) are never overwritten unexpectedly. When enabled, a background watchdog automatically repairs driver clock drift.<br>• **Vendor Tools:** Opens the NVIDIA App, or the Control Panel where that is what is installed, from the GPU page or **Ctrl + Alt + N**. |
 | **Display** | • **Dynamic Refresh Rate:** Switch to any refresh rate the panel advertises. `Auto` uses your chosen rate on AC and 60 Hz on battery.<br>• **LCD Overdrive:** Panel response overdrive where the display reports support for it. |
@@ -170,7 +171,7 @@ Nitrous disables controls when your firmware does not respond to them rather tha
 - **Cover Logo:** Confirmed once with a test colour on the first visit. If the lid's "N" did not light up, the effect controls are replaced by an explanation and nothing further is written to that device.
 - **Keyboard Auto-Off:** Requires the embedded-controller interface and now lives in **Setup → KEYBOARD**. On models without it Nitrous cannot reach the setting, even where the OEM software still offers it.
 - **USB Charging While Off:** Requires an Acer WMI class that is only partially implemented on certain BIOS versions.
-- **CoolBoost:** On firmware whose APGeAction function 7 is CoolBoost the switch drives that firmware feature. Everywhere else - including models that use function 7 for the power mode - it offers the fork's software CoolBoost instead: extra fan on top of Auto, measured from the live CPU and GPU temperatures and handed back to the firmware below 45 °C, so the card is never hidden just because the opcode is missing.
+- **CoolBoost:** On firmware whose APGeAction function 7 is CoolBoost the switch drives that firmware feature. Everywhere else - including models that use function 7 for the power mode - it offers the fork's software CoolBoost instead: extra fan on top of Auto, measured from the live CPU and GPU temperatures, engaged only once the chip has held 62 °C for a few seconds, faded in at 1.5%/s and handed back to the firmware below 55 °C, so the card is never hidden just because the opcode is missing.
 
 **LCD Overdrive** is the exception: it is a panel property, so where the display reports no support the control is hidden entirely rather than greyed out, and the refresh list fills the row.
 </details>
